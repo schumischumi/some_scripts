@@ -1,0 +1,27 @@
+version: 2
+
+locations:
+  home:
+    from: /home/user
+    to: remoterest
+    options:
+        backup:
+            exclude:
+                - '/home/user/.config/*'
+                - '/home/user/.vscode/*'
+                - '/home/user/.var/*'
+                - '/home/user/Downloads/*'
+                - '/home/user/Nextcloud/*'
+                - '/home/user/git/*'
+                - '/home/user/temp/*'
+                - '/home/user/.cache/*'
+                - '/home/user/.local/*'
+        forget:
+            keep-daily: 4 # keep 4 last daily snapshots
+            keep-weekly: 1 # keep 1 last weekly snapshots
+            keep-monthly: 12 # keep 12 last monthly snapshots
+
+backends:
+  remoterest:
+    type: rest
+    path: http://restic-rest.dockerbox.local/notebook
