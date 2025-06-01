@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Ensure at least one argument is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <app-name> [extra arguments...]"
+  exit 1
+fi
+
+search_term="$1"
+shift  # Shift so that $@ holds any extra args for flatpak run
+
+# Get a list of apps: app-id<tab>name
+mapfile -t results < <(flatpak list --app --columns=application,name | awk -F'\t' -v term="$search_term" 'BEGIN{IGNORECASE=1} $2 ~ term {print $1 "\t" $2}')
+
+match_count=${#results[@]}
+
+if [ "$match_count" -eq 0 ]; then
+  echo "No Flatpak app found with name matching '$search_term'"
+  exit 1
+elif [ "$match_count" -eq 1 ]; then
+  app_id=$(echo "${results[0]}" | cut -f1)
+  echo "Running: $app_id"
+  flatpak run "$app_id" "$@"
+else
+  echo "Multiple matching apps found for name '$search_term':"
+  printf "%s\n" "${results[@]}" | column -t -s$'\t'
+  exit 1
+fi
